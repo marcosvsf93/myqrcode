@@ -81,11 +81,7 @@ async function safeEqual(a, b) {
 const configError = () =>
   page("Configuração incompleta", `<h1>Configuração incompleta</h1><p>Faltam o KV <code>QR_LINKS</code> ou a variável <code>ADMIN_PASSWORD</code> no Cloudflare.</p>`, 500);
 
-export async function onRequestGet({ request, env, params, next }) {
-  const id = params.id;
-  if (!ID_REGEX.test(id)) return next();
-  if (!env.QR_LINKS || !env.ADMIN_PASSWORD) return configError();
-
+async function handleGet(request, env, id) {
   const destino = await env.QR_LINKS.get(id);
   const editar = new URL(request.url).searchParams.has("editar");
 
@@ -98,11 +94,7 @@ export async function onRequestGet({ request, env, params, next }) {
   return formPage(id, destino);
 }
 
-export async function onRequestPost({ request, env, params, next }) {
-  const id = params.id;
-  if (!ID_REGEX.test(id)) return next();
-  if (!env.QR_LINKS || !env.ADMIN_PASSWORD) return configError();
-
+async function handlePost(request, env, id) {
   const atual = await env.QR_LINKS.get(id);
   const data = await request.formData();
   const senha = String(data.get("senha") || "");
@@ -144,3 +136,20 @@ export async function onRequestPost({ request, env, params, next }) {
      <p style="margin-top:1rem">Para alterar depois, acesse <code>/${esc(id)}?editar</code></p>`
   );
 }
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    const id = url.pathname.replace(/^\/|\/$/g, "");
+
+    // Qualquer coisa que não seja /nome-simples vai para os arquivos estáticos (index.html etc.)
+    if (!ID_REGEX.test(id) || !["GET", "HEAD", "POST"].includes(request.method)) {
+      return env.ASSETS.fetch(request);
+    }
+    if (!env.QR_LINKS || !env.ADMIN_PASSWORD) return configError();
+
+    return request.method === "POST"
+      ? handlePost(request, env, id)
+      : handleGet(request, env, id);
+  },
+};
