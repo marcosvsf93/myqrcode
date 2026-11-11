@@ -1,0 +1,8 @@
+# Formato: /caminho-da-placa  destino-completo  302
+# Para mudar o destino de uma placa, edite apenas o link do meio.
+# Mantenha sempre o 302 no final (redirecionamento temporario).
+# Linhas que comecam com # sao comentarios.
+
+/placa1  https://example.com/destino-1  302
+/placa2  https://example.com/destino-2  302
+/placa3  https://example.com/destino-3  302
