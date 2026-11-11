@@ -3,6 +3,6 @@
 # Mantenha sempre o 302 no final (redirecionamento temporario).
 # Linhas que comecam com # sao comentarios.
 
-/placa1  https://example.com/destino-1  302
+/placa1  https://www.instagram.com/marcosvsf93  302
 /placa2  https://example.com/destino-2  302
 /placa3  https://example.com/destino-3  302
